@@ -1,38 +1,31 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
 ## Getting Started
 
-First, run the development server:
+First, install dependencies:
+```bash
+npm install
+```
+
+Then run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## FAQ
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+### How are you ensuring data consistency in your list (e.g. not show duplicates) when dealing with paginated content?
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+Data is stored in a normalized state structure. This implementation utilizes createEntityAdapter from Redux Toolkit which generates helper functions and prebuilt selectors (and combines it with RTK Query for data fetching). For every successful API call, a new set of items is merged into the existing state kept in memory.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### How would you ensure this list remains fast with many objects to be displayed?
 
-## Learn More
+By using some form of list virtualization (or a way to reduce the number of DOM elements). This application implements it in a simple manner by using IntersectionObserver API to keep track which elements are outside the viewport (and display them as empty placeholders only). For large lists a well-known library like [react-window](https://github.com/bvaughn/react-window) could be a better solution.
 
-To learn more about Next.js, take a look at the following resources:
+## Additional notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Instead of doing the regular API requests (e.g. separate calls for Characters and Episodes) GraphQL API is used to save some requests, select the data that is needed and make the  transformations easier.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+This app illustrates IntersectionObserver API usage to implement infinite scrolling without having to rely on scroll events. A sentinel element triggers the loading of additional elements once it comes into view and is being added again after the new elements have been attached to the list (and this detection happens early so usually there's no need for displaying a spinner but it can be tested by simulating slow connection).
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
